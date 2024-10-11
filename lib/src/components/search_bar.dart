@@ -1,51 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-// Definindo a classe SearchBar
+import '../controllers/weather_controller.dart';
+
 class MySearchBar extends SearchDelegate<String> {
-  final List<String> cities = [
-    'São Paulo',
-    'Rio de Janeiro',
-    'Belo Horizonte',
-    'Curitiba',
-  ];
+  final Function(String, String) onQuerySubmitted;
+
+  List<Map<String, dynamic>> suggestions = [];
 
   MySearchBar({
-    required this.inBar,
-    required this.setState,
-    required this.onSubmitted,
-    required this.buildDefaultAppBar,
+    required this.onQuerySubmitted,
   });
-
-  final bool inBar;
-  final Function setState;
-  final Function onSubmitted;
-  final Function buildDefaultAppBar;
 
   @override
   String get searchFieldLabel => 'Buscar cidade...';
 
+//icons
   @override
   List<Widget>? buildActions(BuildContext context) {
+    final weatherController = Provider.of<WeatherController>(context);
     return [
       IconButton(
-        icon: const Icon(
-          Icons.clear,
-          color: Colors.blue,
-        ),
+        icon: const Icon(Icons.clear),
         onPressed: () {
           query = '';
+          suggestions.clear();
+          showSuggestions(context);
+        },
+      ),
+      IconButton(
+        icon: const Icon(Icons.search),
+        onPressed: () async {
+          final response = await weatherController.getCities(query);
+          suggestions = response
+              .map((city) => {'id': city['place_id'], 'name': city['name']})
+              .toList();
+          showSuggestions(context);
         },
       ),
     ];
   }
 
+//close search bar
   @override
   Widget? buildLeading(BuildContext context) {
     return IconButton(
-      icon: const Icon(
-        Icons.arrow_back,
-        color: Colors.blue,
-      ),
+      icon: const Icon(Icons.arrow_back),
       onPressed: () {
         close(context, '');
       },
@@ -54,51 +54,56 @@ class MySearchBar extends SearchDelegate<String> {
 
   @override
   Widget buildResults(BuildContext context) {
-    final selectedCity = query.isEmpty
-        ? 'Nenhuma cidade selecionada.'
-        : 'Resultados para: $query';
-
-    return Center(
-      child: Text(selectedCity),
-    );
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    final suggestionList = query.isEmpty
-        ? cities
-        : cities
-            .where((element) =>
-                element.toLowerCase().startsWith(query.toLowerCase()))
-            .toList();
-
     return ListView.builder(
-      itemCount: suggestionList.length,
+      itemCount: suggestions.length,
       itemBuilder: (context, index) {
+        final city = suggestions[index];
+        final cityName = city['name'];
+        final cityId = city['id'];
         return ListTile(
-          title: Text(suggestionList[index]),
+          title: Text(cityName),
           onTap: () {
-            query = suggestionList[index];
-            showResults(context);
+            query = cityName;
+            onQuerySubmitted(cityId.toString(), cityName);
+            close(context, cityId.toString());
           },
         );
       },
     );
   }
 
-  Widget getSearchAction(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.search),
-      onPressed: () {
-        showSearch(context: context, delegate: this);
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return ListView.builder(
+      itemCount: suggestions.length,
+      itemBuilder: (context, index) {
+        final city = suggestions[index];
+        final cityName = city['name'];
+        final cityId = city['id'];
+        return ListTile(
+          title: Text(cityName),
+          onTap: () {
+            query = cityName;
+            onQuerySubmitted(cityId.toString(), cityName);
+            close(context, cityId.toString());
+          },
+        );
       },
     );
   }
 
-  Widget build(BuildContext context) {
-    return AppBar(
-      title: const Text('Previsão do Tempo'),
-      actions: [getSearchAction(context)],
-    );
+  @override
+  void showResults(BuildContext context) async {
+    final weatherController =
+        Provider.of<WeatherController>(context, listen: false);
+    try {
+      final response = await weatherController.getCities(query);
+      suggestions = response
+          .map((city) => {'id': city['place_id'], 'name': city['name']})
+          .toList();
+      super.showResults(context);
+    } catch (e) {
+      print('Error fetching cities: $e');
+    }
   }
 }
