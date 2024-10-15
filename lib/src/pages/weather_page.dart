@@ -1,41 +1,175 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:weather_app/src/components/horizontal_carousel.dart';
+import 'package:weather_app/src/components/loading.dart';
 import 'package:weather_app/src/components/search_bar.dart';
+import '../controllers/weather_controller.dart';
+import '../model/weather_model.dart';
 
-// Definindo a classe WeatherPage
 class WeatherPage extends StatefulWidget {
   const WeatherPage({super.key});
 
   @override
-  _WeatherPageState createState() => _WeatherPageState();
+  WeatherPageState createState() => WeatherPageState();
 }
 
-class _WeatherPageState extends State<WeatherPage> {
-  late MySearchBar searchBar;
+class WeatherPageState extends State<WeatherPage> {
+  String _query = '';
+  double _temperature = 0.0;
+  String _name = '';
+  String _weather = '';
+  String _data = '';
+  int _weatherIconNum = 0;
+  bool isSearching = false;
 
-  @override
-  void initState() {
-    super.initState();
-    searchBar = MySearchBar(
-      inBar: false,
-      setState: setState,
-      onSubmitted: print,
-      buildDefaultAppBar: buildAppBar,
-    );
+  void _performSearch(String query, String name) async {
+    setState(() {
+      _query = query;
+      _name = name;
+      isSearching = true;
+    });
+
+    final weatherController =
+        Provider.of<WeatherController>(context, listen: false);
+
+    try {
+      final dailyData = await weatherController.getDailyWeather(_query);
+      final String originalDate = dailyData?['day'] ?? '';
+
+      String formattedData = convertToBrazilianDate(originalDate);
+      setState(() {
+        _data = formattedData;
+        _temperature = dailyData?['all_day']?['temperature']?.toDouble() ?? 0.0;
+        _weather = dailyData?['all_day']?['weather'] ?? 'Unknown';
+        _weatherIconNum = dailyData?['all_day']?['icon'] ?? 0;
+      });
+    } catch (e) {
+      print('Erro ao buscar clima: $e');
+    }
   }
 
-  AppBar buildAppBar(BuildContext context) {
-    return AppBar(
-      title: const Text('Previsão do Tempo'),
-      actions: [searchBar.getSearchAction(context)],
-    );
+  String convertToBrazilianDate(String date) {
+    final dateParts = date.split('-');
+    return '${dateParts[2]}/${dateParts[1]}';
   }
 
   @override
   Widget build(BuildContext context) {
+    print("weather: $_weather");
+    print('temperature: $_temperature');
+    print('icon num: $_weatherIconNum');
+    String iconPath = WeatherModel.getWeatherIcon(_weatherIconNum);
+    String weatherTranslated = WeatherModel.getWeatherTranslation(_weather);
+
+    print("path: $iconPath");
     return Scaffold(
-      appBar: searchBar.build(context),
-      body: Center(
-        child: const Text('Conteúdo da Página de Clima'),
+      backgroundColor: Colors.blue,
+      appBar: AppBar(
+        backgroundColor: Colors.blue,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search, color: Colors.white),
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: MySearchBar(onQuerySubmitted: _performSearch),
+              );
+            },
+          ),
+        ],
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF3C72DC),
+              Color(0xFF6E90F0),
+            ],
+          ),
+        ),
+        child: Consumer<WeatherController>(
+          builder: (context, weatherController, child) {
+            if (weatherController.isLoading) {
+              return const MyLoading();
+            }
+
+            if (isSearching && _weather.isNotEmpty) {
+              return Padding(
+                padding: const EdgeInsets.all(40),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Hoje, $_data",
+                      style: GoogleFonts.lato(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Text(
+                      "Agora em $_name",
+                      style: GoogleFonts.lato(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '$_temperature',
+                              style: GoogleFonts.lato(
+                                fontSize: 100,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 24),
+                              child: Text(
+                                '°C',
+                                style: GoogleFonts.lato(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: SizedBox(
+                            width: 100,
+                            height: 100,
+                            child: Image.asset(
+                              iconPath,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              return HorizontalCarousel(content: "content");
+            }
+          },
+        ),
       ),
     );
   }

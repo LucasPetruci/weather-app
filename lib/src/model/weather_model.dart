@@ -1,42 +1,41 @@
 class WeatherModel {
-  static final Map<String, String> weatherIcons = {
-    'not_available': 'assets/icons/not-available.png', //1
-    'sunny': 'assets/icons/sunny.png', //2
-    'mostly_sunny': 'assets/icons/mostly-sunny.png', //3
-    'partly_sunny': 'assets/icons/partly-sunny.png', //4
-    'mostly_cloudy': 'assets/icons/mostly-cloudy.png', //5
-    'cloudy': 'assets/icons/cloudy.png', //6
-    'overcast': 'assets/icons/overcast.png', //7
-    'overcast_w_low_clds': 'assets/icons/overcast-with-low-clouds.png', //8
-    'fog': 'assets/icons/fog.png', //9
-    'light_rain': 'assets/icons/light-rain.png', //10
-    'rain': 'assets/icons/rain.png', //11
-    'psbl_rain': 'assets/icons/possible-rain.png', //12
-    'rain_shower': 'assets/icons/rain-shower.png', //13
-    'tstorm': 'assets/icons/thunderstorm.png', //14
-    'tstorm_shower': 'assets/icons/local-thunderstorms.png', //15
-    'light_snow': 'assets/icons/light-snow.png', //16
-    'snow': 'assets/icons/snow.png', //17
-    'psbl_snow': 'assets/icons/possible-snow.png', //18
-    'snow_shower': 'assets/icons/snow-shower.png', //19
-    'rain_and_snow': 'assets/icons/rain-and-snow.png', //20
-    'psbl_rain_and_snow': 'assets/icons/possible-rain-and-snow.png', //21
-    //'rain_and_snow': 'assets/icons/rain-and-snow.png',  //22
-    'fr_rain': 'assets/icons/freezing-rain.png', //23
-    'psbl_fr_rain': 'assets/icons/possible-freezing-rain.png', //24
-    'hail': 'assets/icons/hail.png', //25
-    'clear': 'assets/icons/clear-night.png', //26
-    'mostly_clear': 'assets/icons/mostly-clear-night.png', //27
-    'partly_clear': 'assets/icons/partly-cloudy-night.png', //28
-    'mostly_cloudy_night': 'assets/icons/mostly-cloudy-night.png', //29
-    'cloudy_night': 'assets/icons/cloudy-night.png', //30
-    'overcast_with_low_clouds_night':
-        'assets/icons/overcast-with-low-clouds-night.png', //31
-
-    'local_thunderstorms_night':
-        'assets/icons/local-thunderstorms-night.png', //32
-    'snow_shower_night': 'assets/icons/snow-shower-night.png', //33
-    'rain_and_snow_night': 'assets/icons/rain-and-snow-night.png', //34
+  static final Map<int, String> weatherIcons = {
+    1: 'assets/icons/1.png',
+    2: 'assets/icons/2.png',
+    3: 'assets/icons/3.png',
+    4: 'assets/icons/4.png',
+    5: 'assets/icons/5.png',
+    6: 'assets/icons/6.png',
+    7: 'assets/icons/7.png',
+    8: 'assets/icons/8.png',
+    9: 'assets/icons/9.png',
+    10: 'assets/icons/10.png',
+    11: 'assets/icons/11.png',
+    12: 'assets/icons/12.png',
+    13: 'assets/icons/13.png',
+    14: 'assets/icons/14.png',
+    15: 'assets/icons/15.png',
+    16: 'assets/icons/16.png',
+    17: 'assets/icons/17.png',
+    18: 'assets/icons/18.png',
+    19: 'assets/icons/19.png',
+    20: 'assets/icons/20.png',
+    21: 'assets/icons/21.png',
+    22: 'assets/icons/22.png',
+    23: 'assets/icons/23.png',
+    24: 'assets/icons/24.png',
+    25: 'assets/icons/25.png',
+    26: 'assets/icons/26.png',
+    27: 'assets/icons/27.png',
+    28: 'assets/icons/28.png',
+    29: 'assets/icons/29.png',
+    30: 'assets/icons/30.png',
+    31: 'assets/icons/31.png',
+    32: 'assets/icons/32.png',
+    33: 'assets/icons/33.png',
+    34: 'assets/icons/34.png',
+    35: 'assets/icons/35.png',
+    36: 'assets/icons/36.png',
   };
 
   static final Map<String, String> translateWeather = {
@@ -79,7 +78,7 @@ class WeatherModel {
     return translateWeather[weather] ?? 'Não disponível';
   }
 
-  static String getWeatherIcon(String weather) {
-    return weatherIcons[weather] ?? 'assets/icons/not-available.png';
+  static String getWeatherIcon(int _weatherIconNum) {
+    return weatherIcons[_weatherIconNum] ?? 'assets/icons/1.png';
   }
 }
