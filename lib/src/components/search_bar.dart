@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../controllers/weather_controller.dart';
@@ -15,13 +16,35 @@ class MySearchBar extends SearchDelegate<String> {
   @override
   String get searchFieldLabel => 'Buscar cidade...';
 
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    return ThemeData(
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.blue,
+        iconTheme: IconThemeData(color: Colors.white),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.white.withOpacity(0.2),
+        border: OutlineInputBorder(
+          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        hintStyle: GoogleFonts.lato(
+          fontSize: 18,
+          color: Colors.white.withOpacity(0.6),
+        ),
+      ),
+    );
+  }
+
 //icons
   @override
   List<Widget>? buildActions(BuildContext context) {
     final weatherController = Provider.of<WeatherController>(context);
     return [
       IconButton(
-        icon: const Icon(Icons.clear),
+        icon: const Icon(Icons.clear, color: Colors.white),
         onPressed: () {
           query = '';
           suggestions.clear();
@@ -29,7 +52,7 @@ class MySearchBar extends SearchDelegate<String> {
         },
       ),
       IconButton(
-        icon: const Icon(Icons.search),
+        icon: const Icon(Icons.search, color: Colors.white),
         onPressed: () async {
           final response = await weatherController.getCities(query);
           suggestions = response
@@ -45,7 +68,7 @@ class MySearchBar extends SearchDelegate<String> {
   @override
   Widget? buildLeading(BuildContext context) {
     return IconButton(
-      icon: const Icon(Icons.arrow_back),
+      icon: const Icon(Icons.arrow_back, color: Colors.white),
       onPressed: () {
         close(context, '');
       },
