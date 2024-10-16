@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 class MyBoxDetails extends StatelessWidget {
   String path;
-  String content = '0%';
+  String content;
   String text;
 
   MyBoxDetails({
@@ -15,7 +15,8 @@ class MyBoxDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8),
       width: 158,
       height: 132,
       child: Card(
