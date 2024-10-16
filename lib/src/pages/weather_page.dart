@@ -22,6 +22,9 @@ class WeatherPageState extends State<WeatherPage> {
   String _data = '';
   int _weatherIconNum = 0;
   bool isSearching = false;
+  double _precipitation = 0.0;
+  double _wind = 0.0;
+  int _cloudCover = 0;
 
   void _performSearch(String query, String name) async {
     setState(() {
@@ -43,6 +46,11 @@ class WeatherPageState extends State<WeatherPage> {
         _temperature = dailyData?['all_day']?['temperature']?.toDouble() ?? 0.0;
         _weather = dailyData?['all_day']?['weather'] ?? 'Unknown';
         _weatherIconNum = dailyData?['all_day']?['icon'] ?? 0;
+        _precipitation =
+            dailyData?['all_day']?['precipitation']?['total']?.toDouble() ??
+                0.0;
+        _wind = dailyData?['all_day']?['wind']?['speed']?.toDouble() ?? 0.0;
+        _cloudCover = dailyData?['all_day']?['cloud_cover']?['total'] ?? 0;
       });
     } catch (e) {
       print('Erro ao buscar clima: $e');
@@ -162,11 +170,30 @@ class WeatherPageState extends State<WeatherPage> {
                         ),
                       ],
                     ),
+                    HorizontalCarousel(
+                      precipitation: '$_precipitation%',
+                      wind: '$_wind km/h',
+                      cloudCover: '$_cloudCover%',
+                    ),
                   ],
                 ),
               );
             } else {
-              return HorizontalCarousel(content: "content");
+              return const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Digite o nome de uma cidade para buscar o clima',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              );
             }
           },
         ),
