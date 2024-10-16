@@ -35,6 +35,11 @@ class WeatherController with ChangeNotifier {
     }
   }
 
+  Future<Map<String, dynamic>?> getDailyWeather(String placeId) async {
+    final data = await getWeatherByCity(placeId);
+    return data['daily']?['data']?[0];
+  }
+
   void setLoading(bool value) {
     _isLoading = value;
     print('Loading state changed: $isLoading');
