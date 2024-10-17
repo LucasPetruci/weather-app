@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class MyBoxDetails extends StatelessWidget {
-  String path;
-  String content;
-  String text;
+  final String path;
+  final String content;
+  final String text;
 
-  MyBoxDetails({
+  const MyBoxDetails({
     super.key,
     required this.path,
     required this.content,
