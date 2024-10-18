@@ -20,7 +20,7 @@ class MySearchBar extends SearchDelegate<String> {
   ThemeData appBarTheme(BuildContext context) {
     return ThemeData(
       appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.blue,
+        backgroundColor: Color(0xFF3C72DC),
         iconTheme: IconThemeData(color: Colors.white),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -33,6 +33,12 @@ class MySearchBar extends SearchDelegate<String> {
         hintStyle: GoogleFonts.lato(
           fontSize: 18,
           color: Colors.white.withOpacity(0.6),
+        ),
+      ),
+      textTheme: TextTheme(
+        titleLarge: GoogleFonts.lato(
+          fontSize: 18,
+          color: Colors.white,
         ),
       ),
     );
@@ -97,21 +103,24 @@ class MySearchBar extends SearchDelegate<String> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    return ListView.builder(
-      itemCount: suggestions.length,
-      itemBuilder: (context, index) {
-        final city = suggestions[index];
-        final cityName = city['name'];
-        final cityId = city['id'];
-        return ListTile(
-          title: Text(cityName),
-          onTap: () {
-            query = cityName;
-            onQuerySubmitted(cityId.toString(), cityName);
-            close(context, cityId.toString());
-          },
-        );
-      },
+    return Container(
+      color: const Color(0xFF6E90F0),
+      child: ListView.builder(
+        itemCount: suggestions.length,
+        itemBuilder: (context, index) {
+          final city = suggestions[index];
+          final cityName = city['name'];
+          final cityId = city['id'];
+          return ListTile(
+            title: Text(cityName, style: const TextStyle(color: Colors.white)),
+            onTap: () {
+              query = cityName;
+              onQuerySubmitted(cityId.toString(), cityName);
+              close(context, cityId.toString());
+            },
+          );
+        },
+      ),
     );
   }
 
