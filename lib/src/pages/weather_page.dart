@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:weather_app/src/components/horizontal_carousel.dart';
 import 'package:weather_app/src/components/loading.dart';
+import 'package:weather_app/src/components/draggable_scroll.dart';
 import 'package:weather_app/src/components/search_bar.dart';
 import '../controllers/weather_controller.dart';
 import '../model/weather_model.dart';
@@ -37,20 +38,24 @@ class WeatherPageState extends State<WeatherPage> {
         Provider.of<WeatherController>(context, listen: false);
 
     try {
-      final dailyData = await weatherController.getDailyWeather(_query);
-      final String originalDate = dailyData?['day'] ?? '';
+      final dailyData = await weatherController.getClosestHourlyWeather(_query);
+      print('dailyData: $dailyData');
+
+      final String originalDate = dailyData?['date'] ?? '';
 
       String formattedData = convertToBrazilianDate(originalDate);
+
       setState(() {
         _data = formattedData;
-        _temperature = dailyData?['all_day']?['temperature']?.toDouble() ?? 0.0;
-        _weather = dailyData?['all_day']?['weather'] ?? 'Unknown';
-        _weatherIconNum = dailyData?['all_day']?['icon'] ?? 0;
+        _temperature = (dailyData?['temperature'] as num?)?.toDouble() ?? 0.0;
+        _weather = dailyData?['weather'] ?? 'Unknown';
+        _weatherIconNum = dailyData?['icon'] ?? 0;
         _precipitation =
-            dailyData?['all_day']?['precipitation']?['total']?.toDouble() ??
-                0.0;
-        _wind = dailyData?['all_day']?['wind']?['speed']?.toDouble() ?? 0.0;
-        _cloudCover = dailyData?['all_day']?['cloud_cover']?['total'] ?? 0;
+            (dailyData?['precipitation']?['total'] as num?)?.toDouble() ?? 0.0;
+        _wind = (dailyData?['wind']?['speed'] as num?)?.toDouble() ?? 0.0;
+        _cloudCover = dailyData?['cloud_cover']?['total'] ?? 0;
+
+        print('temperature: $_temperature');
       });
     } catch (e) {
       print('Erro ao buscar clima: $e');
@@ -59,7 +64,9 @@ class WeatherPageState extends State<WeatherPage> {
 
   String convertToBrazilianDate(String date) {
     final dateParts = date.split('-');
-    return '${dateParts[2]}/${dateParts[1]}';
+    print('dateParts: $dateParts');
+    final day = dateParts[2].split('T')[0];
+    return '$day/${dateParts[1]}';
   }
 
   @override
@@ -72,9 +79,8 @@ class WeatherPageState extends State<WeatherPage> {
 
     print("path: $iconPath");
     return Scaffold(
-      backgroundColor: Colors.blue,
       appBar: AppBar(
-        backgroundColor: Colors.blue,
+        backgroundColor: Color(0xFF6E90F0),
         actions: [
           IconButton(
             icon: const Icon(Icons.search, color: Colors.white),
@@ -105,13 +111,13 @@ class WeatherPageState extends State<WeatherPage> {
             }
 
             if (isSearching && _weather.isNotEmpty) {
-              return Padding(
-                padding: const EdgeInsets.all(40),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 24, top: 24),
+                    child: Text(
                       "Hoje, $_data",
                       style: GoogleFonts.lato(
                         fontSize: 20,
@@ -119,8 +125,11 @@ class WeatherPageState extends State<WeatherPage> {
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 14),
-                    Text(
+                  ),
+                  const SizedBox(height: 14),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 24),
+                    child: Text(
                       "Agora em $_name",
                       style: GoogleFonts.lato(
                         fontSize: 20,
@@ -128,71 +137,98 @@ class WeatherPageState extends State<WeatherPage> {
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 14),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '$_temperature',
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${_temperature.toInt()}',
+                            style: GoogleFonts.lato(
+                              fontSize: 100,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 24),
+                            child: Text(
+                              '°C',
                               style: GoogleFonts.lato(
-                                fontSize: 100,
+                                fontSize: 24,
                                 fontWeight: FontWeight.w400,
                                 color: Colors.white,
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 24),
-                              child: Text(
-                                '°C',
-                                style: GoogleFonts.lato(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 12),
-                          child: SizedBox(
-                            width: 100,
-                            height: 100,
-                            child: Image.asset(
-                              iconPath,
-                              fit: BoxFit.contain,
-                            ),
                           ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: SizedBox(
+                          width: 100,
+                          height: 100,
+                          child: Image.asset(
+                            iconPath,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  HorizontalCarousel(
+                    precipitation: '$_precipitation%',
+                    wind: '$_wind km/h',
+                    cloudCover: '$_cloudCover%',
+                  ),
+                  MyDraggableScrollable(),
+                ],
+              );
+            } else {
+              return const Stack(
+                children: [
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Olá! Bem vindo ao Weather App, para começar, clique no ícone de busca no canto superior direito.',
+                          style: TextStyle(
+                            fontSize: 24,
+                            color: Colors.white,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 20),
+                        Text(
+                          "A api utilizada é a OpenWeatherMap, então você pode buscar por cidades do mundo inteiro!, porém ela só fornece dados 3 horas após a hora atual.",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
                       ],
                     ),
-                    HorizontalCarousel(
-                      precipitation: '$_precipitation%',
-                      wind: '$_wind km/h',
-                      cloudCover: '$_cloudCover%',
-                    ),
-                  ],
-                ),
-              );
-            } else {
-              return const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Digite o nome de uma cidade para buscar o clima',
+                  ),
+                  Positioned(
+                    bottom: 16, // Posiciona a assinatura no rodapé
+                    left: 0,
+                    right: 0,
+                    child: Text(
+                      'Desenvolvido por Lucas Petruci © 2024',
                       style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.white,
+                        fontSize: 14,
+                        color: Colors.white70,
                       ),
+                      textAlign: TextAlign.center,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               );
             }
           },

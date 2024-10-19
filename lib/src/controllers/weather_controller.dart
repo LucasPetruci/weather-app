@@ -37,7 +37,22 @@ class WeatherController with ChangeNotifier {
 
   Future<Map<String, dynamic>?> getDailyWeather(String placeId) async {
     final data = await getWeatherByCity(placeId);
-    return data['daily']?['data']?[0];
+    return data['daily']?['data'];
+  }
+
+  Future<Map<String, dynamic>?> getClosestHourlyWeather(String placeId) async {
+    final data = await getWeatherByCity(placeId);
+
+    if (data['hourly'] == null ||
+        data['hourly']['data'] == null ||
+        (data['hourly']['data'] as List).isEmpty) {
+      print("Nenhum dado horário disponível.");
+      return null;
+    }
+    List<dynamic> hourlyData = data['hourly']['data'];
+    Map<String, dynamic> closestHourlyWeather = hourlyData[0];
+
+    return closestHourlyWeather;
   }
 
   void setLoading(bool value) {
