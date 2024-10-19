@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:weather_app/src/pages/weather_page.dart';
 import 'package:weather_app/src/services/weather_api_service.dart';
 
+import 'src/components/scroll_behavior_mofied.dart';
 import 'src/controllers/weather_controller.dart';
 
 void main() {
@@ -32,6 +33,12 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
+      builder: (context, child) {
+        return ScrollConfiguration(
+          behavior: ScrollBehaviorModified(),
+          child: child!,
+        );
+      },
       home: const WeatherPage(),
     );
   }
