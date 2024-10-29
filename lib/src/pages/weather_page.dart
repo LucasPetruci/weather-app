@@ -28,6 +28,12 @@ class WeatherPageState extends State<WeatherPage> {
   int _cloudCover = 0;
 
   void _performSearch(String query, String name) async {
+    if (query.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Digite o nome da cidade.')),
+      );
+      return;
+    }
     setState(() {
       _query = query;
       _name = name;
@@ -38,24 +44,15 @@ class WeatherPageState extends State<WeatherPage> {
         Provider.of<WeatherController>(context, listen: false);
 
     try {
-      final dailyData = await weatherController.getClosestHourlyWeather(_query);
-      print('dailyData: $dailyData');
-
-      final String originalDate = dailyData?['date'] ?? '';
-
-      String formattedData = convertToBrazilianDate(originalDate);
-
+      final weatherData = await weatherController.getWeatherByCity(_query);
       setState(() {
-        _data = formattedData;
-        _temperature = (dailyData?['temperature'] as num?)?.toDouble() ?? 0.0;
-        _weather = dailyData?['weather'] ?? 'Unknown';
-        _weatherIconNum = dailyData?['icon'] ?? 0;
-        _precipitation =
-            (dailyData?['precipitation']?['total'] as num?)?.toDouble() ?? 0.0;
-        _wind = (dailyData?['wind']?['speed'] as num?)?.toDouble() ?? 0.0;
-        _cloudCover = dailyData?['cloud_cover']?['total'] ?? 0;
-
-        print('temperature: $_temperature');
+        _data = convertToBrazilianDate(weatherData.hourlyData);
+        _temperature = weatherData.hourlyTemperature;
+        _weather = weatherData.hourlyWeather;
+        _weatherIconNum = weatherData.hourlyIcon;
+        _precipitation = weatherData.hourlyPrecipitation;
+        _wind = weatherData.hourlyWindSpeed;
+        _cloudCover = weatherData.hourlyCloudCover;
       });
     } catch (e) {
       print('Erro ao buscar clima: $e');
@@ -76,6 +73,19 @@ class WeatherPageState extends State<WeatherPage> {
     print('icon num: $_weatherIconNum');
     String iconPath = WeatherModel.getWeatherIcon(_weatherIconNum);
     String weatherTranslated = WeatherModel.getWeatherTranslation(_weather);
+
+    final List<Map<String, dynamic>> forecastData = [
+      {
+        'dayOfWeek': 'Segunda',
+        'imgPath': 'assets/sunny.png',
+        'temperature': 24,
+      },
+      {
+        'dayOfWeek': 'Terça',
+        'imgPath': 'assets/cloudy.png',
+        'temperature': 22,
+      },
+    ];
 
     print("path: $iconPath");
     return Scaffold(
@@ -185,7 +195,9 @@ class WeatherPageState extends State<WeatherPage> {
                     wind: '$_wind km/h',
                     cloudCover: '$_cloudCover%',
                   ),
-                  MyDraggableScrollable(),
+                  MyDraggableScrollable(
+                    forecastData: forecastData,
+                  ),
                 ],
               );
             } else {
