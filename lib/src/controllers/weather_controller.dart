@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:weather_app/src/services/weather_api_service.dart';
 
+import '../model/weather_model.dart';
+
 class WeatherController with ChangeNotifier {
   final WeatherApiService weatherApiService;
 
@@ -22,37 +24,24 @@ class WeatherController with ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>> getWeatherByCity(String cityId) async {
+  Future<WeatherModel> getWeatherByCity(String cityId) async {
     setLoading(true);
     try {
       final response = await weatherApiService.getWeatherByCity(cityId);
-      return response;
+      final hourlyData = response['hourly']['data'] as List;
+
+      if (hourlyData.isNotEmpty) {
+        return WeatherModel.fromJson(
+            hourlyData.first); // Pega o primeiro registro.
+      } else {
+        throw Exception('Nenhum dado disponível.');
+      }
     } catch (e) {
       print("Erro ao buscar clima: $e");
       throw Exception('Erro ao buscar clima');
     } finally {
       setLoading(false);
     }
-  }
-
-  Future<Map<String, dynamic>?> getDailyWeather(String placeId) async {
-    final data = await getWeatherByCity(placeId);
-    return data['daily']?['data'];
-  }
-
-  Future<Map<String, dynamic>?> getClosestHourlyWeather(String placeId) async {
-    final data = await getWeatherByCity(placeId);
-
-    if (data['hourly'] == null ||
-        data['hourly']['data'] == null ||
-        (data['hourly']['data'] as List).isEmpty) {
-      print("Nenhum dado horário disponível.");
-      return null;
-    }
-    List<dynamic> hourlyData = data['hourly']['data'];
-    Map<String, dynamic> closestHourlyWeather = hourlyData[0];
-
-    return closestHourlyWeather;
   }
 
   void setLoading(bool value) {
