@@ -1,4 +1,51 @@
+import 'package:flutter/foundation.dart';
+
 class WeatherModel {
+  //hourly data
+  final String hourlyData;
+  final String hourlyWeather;
+  final int hourlyIcon;
+  final double hourlyTemperature;
+  final double hourlyWindSpeed;
+  final int hourlyCloudCover;
+  final double hourlyPrecipitation;
+
+  WeatherModel({
+    required this.hourlyData,
+    required this.hourlyWeather,
+    required this.hourlyIcon,
+    required this.hourlyTemperature,
+    required this.hourlyWindSpeed,
+    required this.hourlyCloudCover,
+    required this.hourlyPrecipitation,
+  });
+
+  factory WeatherModel.fromJson(Map<String, dynamic> json) {
+    return WeatherModel(
+      hourlyData: json['date'] ?? '',
+      hourlyWeather: json['weather'] ?? 'not_available',
+      hourlyIcon: json['icon'] ?? 1,
+      hourlyTemperature: json['temperature'] ?? 0.0,
+      hourlyWindSpeed: json['wind']['speed'] ?? 0.0,
+      hourlyCloudCover: json['cloud_cover']['total'] ?? 0,
+      hourlyPrecipitation: json['precipitation']['total'] ?? 0.0,
+    );
+  }
+
+  @override
+  String toString() {
+    return '''
+    WeatherModel {
+      date: $hourlyData,
+      weather: $hourlyWeather,
+      icon: $hourlyIcon,
+      temperature: $hourlyTemperature °C,
+      windSpeed: $hourlyWindSpeed km/h,
+      cloudCover: $hourlyCloudCover%,
+      precipitation: $hourlyPrecipitation mm
+    }''';
+  }
+
   static final Map<int, String> weatherIcons = {
     1: 'assets/icons/1.png',
     2: 'assets/icons/2.png',
