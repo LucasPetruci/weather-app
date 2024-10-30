@@ -6,6 +6,7 @@ import 'package:weather_app/src/components/loading.dart';
 import 'package:weather_app/src/components/draggable_scroll.dart';
 import 'package:weather_app/src/components/search_bar.dart';
 import '../controllers/weather_controller.dart';
+import '../model/daily_weather_model.dart';
 import '../model/weather_model.dart';
 
 class WeatherPage extends StatefulWidget {
@@ -26,6 +27,7 @@ class WeatherPageState extends State<WeatherPage> {
   double _precipitation = 0.0;
   double _wind = 0.0;
   int _cloudCover = 0;
+  List<Map<String, dynamic>> forecastData = [];
 
   void _performSearch(String query, String name) async {
     if (query.isEmpty) {
@@ -45,14 +47,29 @@ class WeatherPageState extends State<WeatherPage> {
 
     try {
       final weatherData = await weatherController.getWeatherByCity(_query);
+
+      final WeatherModel currentWeather = weatherData['current'];
+      final List<DailyWeatherModel> dailyWeatherList = weatherData['daily'];
+
+      print('dailyWeatherList: $dailyWeatherList');
+
       setState(() {
-        _data = convertToBrazilianDate(weatherData.hourlyData);
-        _temperature = weatherData.hourlyTemperature;
-        _weather = weatherData.hourlyWeather;
-        _weatherIconNum = weatherData.hourlyIcon;
-        _precipitation = weatherData.hourlyPrecipitation;
-        _wind = weatherData.hourlyWindSpeed;
-        _cloudCover = weatherData.hourlyCloudCover;
+        _data = convertToBrazilianDate(currentWeather.hourlyData);
+        _temperature = currentWeather.hourlyTemperature;
+        _weather = currentWeather.hourlyWeather;
+        _weatherIconNum = currentWeather.hourlyIcon;
+        _precipitation = currentWeather.hourlyPrecipitation;
+        _wind = currentWeather.hourlyWindSpeed;
+        _cloudCover = currentWeather.hourlyCloudCover;
+
+        //next days forecast
+        forecastData = dailyWeatherList.map((item) {
+          return {
+            'dayOfWeek': item.day,
+            'imgPath': WeatherModel.getWeatherIcon(item.icon),
+            'temperature': item.temperature,
+          };
+        }).toList();
       });
     } catch (e) {
       print('Erro ao buscar clima: $e');
@@ -73,19 +90,6 @@ class WeatherPageState extends State<WeatherPage> {
     print('icon num: $_weatherIconNum');
     String iconPath = WeatherModel.getWeatherIcon(_weatherIconNum);
     String weatherTranslated = WeatherModel.getWeatherTranslation(_weather);
-
-    final List<Map<String, dynamic>> forecastData = [
-      {
-        'dayOfWeek': 'Segunda',
-        'imgPath': 'assets/sunny.png',
-        'temperature': 24,
-      },
-      {
-        'dayOfWeek': 'Terça',
-        'imgPath': 'assets/cloudy.png',
-        'temperature': 22,
-      },
-    ];
 
     print("path: $iconPath");
     return Scaffold(
