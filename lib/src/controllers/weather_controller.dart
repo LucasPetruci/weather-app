@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:weather_app/src/model/daily_weather_model.dart';
 import 'package:weather_app/src/services/weather_api_service.dart';
 
 import '../model/weather_model.dart';
@@ -24,18 +25,28 @@ class WeatherController with ChangeNotifier {
     }
   }
 
-  Future<WeatherModel> getWeatherByCity(String cityId) async {
+  Future<Map<String, dynamic>> getWeatherByCity(String cityId) async {
     setLoading(true);
     try {
       final response = await weatherApiService.getWeatherByCity(cityId);
-      final hourlyData = response['hourly']['data'] as List;
 
-      if (hourlyData.isNotEmpty) {
-        return WeatherModel.fromJson(
-            hourlyData.first); // Pega o primeiro registro.
-      } else {
-        throw Exception('Nenhum dado disponível.');
+      final hourlyData = response['hourly']['data'] as List;
+      final dailyData = response['daily']['data'] as List;
+
+      if (hourlyData.isEmpty || dailyData.length <= 1) {
+        throw Exception('Dados insuficientes disponíveis.');
       }
+      final WeatherModel weatherModel = WeatherModel.fromJson(hourlyData.first);
+      final List<DailyWeatherModel> dailyWeatherList = dailyData
+          .skip(
+              1) //skip first element bc it's the same as the first hourly data
+          .map((item) => DailyWeatherModel.fromJson(item))
+          .toList();
+
+      return {
+        'current': weatherModel,
+        'daily': dailyWeatherList,
+      };
     } catch (e) {
       print("Erro ao buscar clima: $e");
       throw Exception('Erro ao buscar clima');
