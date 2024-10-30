@@ -9,7 +9,7 @@ import 'src/controllers/weather_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('pt_BR'); // Remova o null
+  await initializeDateFormatting('pt_BR');
 
   runApp(
     MultiProvider(
