@@ -12,11 +12,14 @@ class MyDraggableScrollable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (forecastData.isEmpty) {
+      return const SizedBox();
+    }
     return Expanded(
       child: DraggableScrollableSheet(
         initialChildSize: 0.3,
         minChildSize: 0.2,
-        maxChildSize: 1.0,
+        maxChildSize: 0.7,
         builder: (context, scrollController) {
           return ColoredBox(
             color: Colors.white,
