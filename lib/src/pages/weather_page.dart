@@ -91,10 +91,9 @@ class WeatherPageState extends State<WeatherPage> {
     String iconPath = WeatherModel.getWeatherIcon(_weatherIconNum);
     String weatherTranslated = WeatherModel.getWeatherTranslation(_weather);
 
-    print("path: $iconPath");
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF6E90F0),
+        backgroundColor: const Color(0xFF6E90F0),
         actions: [
           IconButton(
             icon: const Icon(Icons.search, color: Colors.white),
@@ -107,148 +106,148 @@ class WeatherPageState extends State<WeatherPage> {
           ),
         ],
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF3C72DC),
-              Color(0xFF6E90F0),
-            ],
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF3C72DC),
+                  Color(0xFF6E90F0),
+                ],
+              ),
+            ),
           ),
-        ),
-        child: Consumer<WeatherController>(
-          builder: (context, weatherController, child) {
-            if (weatherController.isLoading) {
-              return const MyLoading();
-            }
+          Consumer<WeatherController>(
+            builder: (context, weatherController, child) {
+              if (weatherController.isLoading) {
+                return const MyLoading();
+              }
 
-            if (isSearching && _weather.isNotEmpty) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 24, top: 24),
-                    child: Text(
-                      "Hoje, $_data",
-                      style: GoogleFonts.lato(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.white,
+              if (isSearching && _weather.isNotEmpty) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 24, top: 24),
+                      child: Text(
+                        "Hoje, $_data",
+                        style: GoogleFonts.lato(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 14),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 24),
-                    child: Text(
-                      "Agora em $_name",
-                      style: GoogleFonts.lato(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.white,
+                    const SizedBox(height: 14),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 24),
+                      child: Text(
+                        "Agora em $_name",
+                        style: GoogleFonts.lato(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 14),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${_temperature.toInt()}',
-                            style: GoogleFonts.lato(
-                              fontSize: 100,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 24),
-                            child: Text(
-                              '°C',
+                    const SizedBox(height: 14),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${_temperature.toInt()}',
                               style: GoogleFonts.lato(
-                                fontSize: 24,
+                                fontSize: 100,
                                 fontWeight: FontWeight.w400,
                                 color: Colors.white,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: SizedBox(
-                          width: 100,
-                          height: 100,
-                          child: Image.asset(
-                            iconPath,
-                            fit: BoxFit.contain,
-                          ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 24),
+                              child: Text(
+                                '°C',
+                                style: GoogleFonts.lato(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                  HorizontalCarousel(
-                    precipitation: '$_precipitation%',
-                    wind: '$_wind km/h',
-                    cloudCover: '$_cloudCover%',
-                  ),
-                  MyDraggableScrollable(
-                    forecastData: forecastData,
-                  ),
-                ],
-              );
-            } else {
-              return const Stack(
-                children: [
-                  Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Olá! Bem vindo ao Weather App, para começar, clique no ícone de busca no canto superior direito.',
-                          style: TextStyle(
-                            fontSize: 24,
-                            color: Colors.white,
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: SizedBox(
+                            width: 100,
+                            height: 100,
+                            child: Image.asset(
+                              iconPath,
+                              fit: BoxFit.contain,
+                            ),
                           ),
-                          textAlign: TextAlign.center,
-                        ),
-                        SizedBox(height: 20),
-                        Text(
-                          "A api utilizada é a OpenWeatherMap, então você pode buscar por cidades do mundo inteiro!, porém ela só fornece dados 3 horas após a hora atual.",
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                          textAlign: TextAlign.center,
                         ),
                       ],
                     ),
-                  ),
-                  Positioned(
-                    bottom: 16, // Posiciona a assinatura no rodapé
-                    left: 0,
-                    right: 0,
-                    child: Text(
-                      'Desenvolvido por Lucas Petruci © 2024',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white70,
-                      ),
-                      textAlign: TextAlign.center,
+                    HorizontalCarousel(
+                      precipitation: '$_precipitation%',
+                      wind: '$_wind km/h',
+                      cloudCover: '$_cloudCover%',
                     ),
+                  ],
+                );
+              } else {
+                return const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Olá! Bem vindo ao Weather App, para começar, clique no ícone de busca no canto superior direito.',
+                        style: TextStyle(
+                          fontSize: 24,
+                          color: Colors.white,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 20),
+                      Text(
+                        "A api utilizada é a OpenWeatherMap, então você pode buscar por cidades do mundo inteiro!, porém ela só fornece dados 3 horas após a hora atual.",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
-                ],
-              );
-            }
-          },
-        ),
+                );
+              }
+            },
+          ),
+          MyDraggableScrollable(
+            forecastData: forecastData,
+          ),
+          const Positioned(
+            bottom: 40,
+            left: 0,
+            right: 0,
+            child: Text(
+              'Desenvolvido por Lucas Petruci © 2024',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.white70,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
       ),
     );
   }
